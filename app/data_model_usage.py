@@ -7,4 +7,9 @@ test_vecs = ["be happy  mcferrin", "Fast Chapman", "Uptown Funk  Mars ", "I'm yo
 
 for t in test_vecs:
     print(fs.find_song_entry(t, best_choice=False))
-    print(fs.find_song_entry(t))
+
+    choice = fs.find_song_entry(t)
+    print(choice)
+    
+    recs = fs.get_recommendations(choice)
+    print(recs)

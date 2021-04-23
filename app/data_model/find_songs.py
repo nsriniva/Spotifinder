@@ -64,3 +64,8 @@ class FindSongs(object):
             choice = choice[0]
     
         return df.loc[choice]
+
+
+    def get_recommendations(self, x):
+        
+        return x
