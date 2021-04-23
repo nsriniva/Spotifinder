@@ -40,8 +40,8 @@ class FindSongs(object):
         
         self.tracks_df = pd.read_csv(TRACKS)
         
-tracks_df.drop(columns=['Unnamed: 0'], inplace=True)
-tracks_df = tracks_df[tracks_df.genres.isna() == False]
+        self.tracks_df.drop(columns=['Unnamed: 0'], inplace=True)
+        self.tracks_df = tracks_df[tracks_df.genres.isna() == False]
         
     def find_song_entries(self, x):
         vec = self.tfidf.transform([tokenize(x)]).todense()
