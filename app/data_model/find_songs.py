@@ -8,15 +8,20 @@ from tensorflow.keras.optimizers import Adam, Nadam
 from sklearn.neighbors import NearestNeighbors
 from joblib import load
 from zipfile import ZipFile
+from os.path import dirname
+
+DIR = dirname(__file__)
 
 rex = rcompile('[^a-zA-Z 0-9]')
 
 tokenize = lambda x: rex.sub('', x.lower().replace(',', ' '))
 
-MODELS_DIR = '../../models/'
-DATA_DIR = '../data/'
+MODELS_DIR = DIR + '/../../models/'
+DATA_DIR = DIR + '/../../data/'
 
-ENCODER = MODELS_DIR + 'encoder.h5'
+ENCODER = 'encoder.h5'
+
+ENCODER_PATH = MODELS_DIR + ENCODER + '.zip'
 ENCODED_DTM = MODELS_DIR + 'encoded_dtm.pkl'
 TFIDF = MODELS_DIR + 'tfidf.pkl'
 
@@ -25,7 +30,7 @@ TRACKS = DATA_DIR + 'tracks_genres_lyrics_en.csv.zip'
 class FindSongs(object):
     def __init__(self):
         
-        with ZipFile(ENCODER+'.zip', 'r') as zipObj:
+        with ZipFile(ENCODER_PATH, 'r') as zipObj:
            zipObj.extractall()
         
         self.encoder = load_model(ENCODER)
@@ -36,12 +41,12 @@ class FindSongs(object):
         
         # Fit on DTM
         self.nn = NearestNeighbors(n_neighbors=5, algorithm='kd_tree')
-        self.nn.fit(encoded_dtm)
+        self.nn.fit(self.encoded_dtm)
         
         self.tracks_df = pd.read_csv(TRACKS)
         
         self.tracks_df.drop(columns=['Unnamed: 0'], inplace=True)
-        self.tracks_df = tracks_df[tracks_df.genres.isna() == False]
+        self.tracks_df = self.tracks_df[self.tracks_df.genres.isna() == False]
         
     def find_song_entries(self, x):
         vec = self.tfidf.transform([tokenize(x)]).todense()
