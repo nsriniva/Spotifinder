@@ -20,7 +20,6 @@ MODELS_DIR = DIR + '/../../models/'
 DATA_DIR = DIR + '/../../data/'
 
 ENCODER = 'encoder.h5'
-FG_ENCODER = 'fg_encoder.h5'
 
 ENCODER_PATH = MODELS_DIR + ENCODER + '.zip'
 ENCODED_DTM = MODELS_DIR + 'encoded_dtm.pkl'
@@ -41,10 +40,13 @@ class FindSongs(object):
            zipObj.extractall()
         
         self.encoder = load_model(ENCODER)
+
         self.tfidf = load(TFIDF)
+
         self.encoded_dtm = load(ENCODED_DTM)
+
         # Fit on DTM
-        self.nn = NearestNeighbors(n_neighbors=5, algorithm='ball_tree')
+        self.nn = NearestNeighbors(n_neighbors=5, algorithm='kd_tree')
         self.nn.fit(self.encoded_dtm)
 
         self.features = [
