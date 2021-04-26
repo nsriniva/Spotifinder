@@ -87,7 +87,7 @@ class FindSongs(object):
         vec = [fvec.tolist()[0] + gvec.tolist()[0]]
         encoded_vec = self.fg_encoder.predict(vec)
         entries = self.fg_nn.kneighbors(encoded_vec)[1][0].tolist()
-        entries = self.tracks_df.iloc[entries].popularity. \
+        entries = self.tracks_df.iloc[entries].popularity.\
             sort_values(ascending=False).index.tolist()
 
         return self.tracks_df.loc[entries]
