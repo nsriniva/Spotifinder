@@ -20,19 +20,4 @@ data = gather_data(songs)
 
 new_data = []
 
-for song in data:
-  str_song = pd.Series(song).item()
-  new_data.append(str_song)
-
-tfidf = TfidfVectorizer(stop_words='english',
-                        ngram_range=(1,2),
-                        min_df=3,
-                        max_df=0.25)
-
-
-
-#Create a vocabulary and get word counts per document
-dtm = tfidf.fit_transform(new_data)
-
-#Get feature names to use as dataframe column headers
-dtm = pd.DataFrame(dtm.todense(), columns=tfidf.get_feature_names())
+pickle.load(nlp_dtm.pkl)
