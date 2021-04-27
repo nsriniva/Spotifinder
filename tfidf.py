@@ -1,6 +1,8 @@
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+import pickle
+
 spotify_songs = pd.read_csv("data/spotify_songs.csv.zip")
 
 spotify_songs = spotify_songs[spotify_songs['language']=='en']
