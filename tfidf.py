@@ -4,40 +4,55 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 spotify_songs = pd.read_csv("data/spotify_songs.csv.zip")
 
-spotify_songs = spotify_songs[spotify_songs['language']=='en']
+def clean_data(data):
+    # drop nulls in lyrics column
+    data = data.dropna()
 
-df1 = spotify_songs.sort_values('track_popularity', ascending=False)[0:5000]
-df1 = df1.reset_index()
+    # Only get songs with lyrics in English
+    data = data[data['language'] == 'en']
+
+    # Drop duplicates
+    data = data.drop_duplicates(subset=['track_name', 'track_artist'],
+                                keep='first')
+
+    # Reduce features
+    features = ['track_id', 'track_name', 'track_artist', 'lyrics']
+    data = data[features]
+
+    # Reset index
+    data = data.reset_index()
+
+    return data
+
+df = clean_data(spotify_songs)
 
 
 def gather_data(songs):
-  data =[]
-  for song in songs:
-    data.append(spotify_songs['lyrics'][spotify_songs['track_id']==song])
-  return data
+    data =[]
+    for song in songs:
+        data.append(df['lyrics'][df['track_id'] == song])
 
-songs = df1['track_id']
+    new_data = []
+
+    for song in data:
+        str_song = pd.Series(song).item()
+        new_data.append(str_song)
+
+    return new_data
+
+songs = df['track_id']
 
 data = gather_data(songs)
 
-new_data = []
-
-for song in data:
-  str_song = pd.Series(song).item()
-  new_data.append(str_song)
-
-
-  #pickle.load(nlp_dtm.pkl)
-
 tfidf = TfidfVectorizer(stop_words='english',
-                        ngram_range=(1,2),
-                        min_df=3,
+                        ngram_range=(1,2), min_df=0.03,
                         max_df=0.25)
 
-
-
 #Create a vocabulary and get word counts per document
-dtm = tfidf.fit_transform(new_data)
+#dtm = tfidf.fit_transform(new_data)
+dtm = tfidf.fit_transform(data)
 
 #Get feature names to use as dataframe column headers
+#dtm = pd.DataFrame(dtm.todense(), columns=tfidf.get_feature_names())
 dtm = pd.DataFrame(dtm.todense(), columns=tfidf.get_feature_names())
+
