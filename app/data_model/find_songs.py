@@ -31,11 +31,12 @@ FG_ENCODED_DF = MODELS_DIR + 'fg_encoded_df.pkl'
 GENRES_TFIDF = MODELS_DIR + 'genres_tfidf.pkl'
 SCALER = MODELS_DIR + 'scaler.pkl'
 
-TRACKS = DATA_DIR + 'tracks_genres_lyrics_en.csv.zip'
 
+TRACKS = DATA_DIR + 'tracks_genres_lyrics_en.csv.zip'
 
 class FindSongs(object):
     def __init__(self):
+
         with ZipFile(ENCODER_PATH, 'r') as zipObj:
             zipObj.extractall()
 
@@ -81,7 +82,9 @@ class FindSongs(object):
 
         return df.loc[choice]
 
+
     def get_recommendations(self, x):
+
         gvec = self.genres_tfidf.transform([tokenize(x.genres)]).todense()
         fvec = self.scaler.transform([x[self.features]])
         vec = [fvec.tolist()[0] + gvec.tolist()[0]]
