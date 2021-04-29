@@ -45,7 +45,7 @@ async def predict(artist, song):
     artist_songs = df.loc[df['track_artist'] == artist]
     selected_song = artist_songs.loc[artist_songs['track_name'] == song]
     x = selected_song.index
-    x= x[0]
+    x = x[0]
     x = x.item()
     doc = dtm.loc[x].values
     result = loaded_model.kneighbors([doc], n_neighbors=6)
