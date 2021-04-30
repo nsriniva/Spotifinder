@@ -6,20 +6,30 @@ import pandas as pd
 from pydantic import BaseModel, Field, validator
 import joblib
 import pickle
-from tfidf import df
-from tfidf import dtm
 from os.path import dirname
-from tfidf import spotify_songs
 from sklearn.feature_extraction.text import TfidfVectorizer
-from tqdm.notebook import tqdm
-DIR = dirname(__file__)
-MODELS_DIR = DIR + '/../models/'
 
 log = logging.getLogger(__name__)
 router = APIRouter()
 
+DIR = dirname(__file__)
+MODELS_DIR = DIR + '/../models/'
+DATA_DIR = DIR + '/../data/'
+
+data_filename = DATA_DIR + 'NLP_songs_data.zip'
 model_filename = MODELS_DIR + 'nlp_model.pkl'
-loaded_model = pickle.load(open(model_filename, 'rb'))
+dtm_filename = MODELS_DIR + 'nlp_dtm.pkl'
+
+df = None
+loaded_model = None
+dtm = None
+
+def load_files():
+    global df, loaded_model, dtm
+
+    df = pd.read_csv(data_filename)
+    loaded_model = pickle.load(open(model_filename, 'rb'))
+    dtm = pickle.load(open(dtm_filename, 'rb'))
 
 class Item(BaseModel):
     """Use this data model to parse the request body JSON."""
@@ -39,14 +49,18 @@ class Item(BaseModel):
         return value
 
 
+
 @router.post('/predict')
 async def predict(artist, song):
+    if dtm is None:
+        load_files()
     #translate artist, song into doc dtm.iloc[x].values
     artist_songs = df.loc[df['track_artist'] == artist]
     selected_song = artist_songs.loc[artist_songs['track_name'] == song]
     x = selected_song.index
     x = x[0]
     x = x.item()
+    
     doc = dtm.loc[x].values
     result = loaded_model.kneighbors([doc], n_neighbors=6)
 
