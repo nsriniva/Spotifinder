@@ -14,7 +14,7 @@ DIR = dirname(__file__)
 
 rex = rcompile('[^a-zA-Z 0-9]')
 
-tokenize = lambda x: rex.sub('', x.lower().replace(',', ' '))
+tokenize = lambda x: rex.sub('', x.lower().replace(',', ' ').replace('-',' '))
 
 MODELS_DIR = DIR + '/../../models/'
 DATA_DIR = DIR + '/../../data/'
@@ -73,15 +73,31 @@ class FindSongs(object):
 
         return self.tracks_df.loc[entries]
 
-    def find_song_entry(self, x, best_choice=True):
-        df = self.find_song_entries(x)
-
+    def find_song_entry(self, sugg_str, best_choice=True):
+    
+        df = self.find_song_entries(sugg_str)
+    
+        sugg_set = set(tokenize(sugg_str).split())
+        
         choice = df.index.tolist()
+        
         if best_choice:
-            choice = choice[0]
-
+            name_artists = lambda x: set(tokenize(df.loc[x]['name']+' '+df.loc[x].artists).split())
+            score_func = lambda x: len(sugg_set.intersection(x))
+            
+            choices = [(y,name_artists(y)) for y in choice]
+            best_idx = 0
+            best_score = score_func(choices[0][1])
+            for idx,nm_art in enumerate(choices[1:]):
+                score = score_func(nm_art[1])
+                #print(f'{nm_art[1]}/{choices[best_idx][1]}/{sugg_set}:: {score}/{best_score}')
+                if score > best_score:
+                    best_score = score
+                    best_idx = idx+1
+                    
+            choice = choices[best_idx][0]
+            
         return df.loc[choice]
-
 
     def get_recommendations(self, x):
 
