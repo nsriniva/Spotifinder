@@ -9,12 +9,11 @@ from os.path import dirname
 
 DIR = dirname(__file__)
 MODELS_DIR = DIR + '/models/'
-DATA_DIR = DIR + '/data/'
+DATA_DIR = DIR + '/../data/'
 
 data_filename = DATA_DIR + 'NLP_songs_data.zip'
 model_filename = MODELS_DIR + 'nlp_model.pkl'
 dtm_filename = MODELS_DIR + 'nlp_dtm.pkl'
-#dtm_filename = MODELS_DIR + 'encoded_dtm.pkl'
 
 df = None
 loaded_model = None
