@@ -8,8 +8,8 @@ from joblib import load
 from os.path import dirname
 
 DIR = dirname(__file__)
-MODELS_DIR = DIR + '/../models/'
-DATA_DIR = DIR + '/../data/'
+MODELS_DIR = DIR + '/models/'
+DATA_DIR = DIR + '/data/'
 
 data_filename = DATA_DIR + 'NLP_songs_data.zip'
 model_filename = MODELS_DIR + 'nlp_model.pkl'
