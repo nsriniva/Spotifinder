@@ -4,53 +4,106 @@ from fastapi import APIRouter, HTTPException
 import pandas as pd
 import plotly.express as px
 
+from wordcloud import WordCloud, STOPWORDS
+import matplotlib.pyplot as plt
+from app import ml
+
+import joblib
+import pickle
+from os.path import dirname
+
 router = APIRouter()
 
+stopwords = set(STOPWORDS)
 
-@router.get('/viz/{statecode}')
-async def viz(statecode: str):
-    """
-    Visualize state unemployment rate from [Federal Reserve Economic Data](https://fred.stlouisfed.org/) 📈
+DIR = dirname(__file__)
+MODELS_DIR = DIR + '/../models/'
+DATA_DIR = DIR + '/../data/'
+
+data_filename = DATA_DIR + 'NLP_songs_data.zip'
+model_filename = MODELS_DIR + 'nlp_model.pkl'
+dtm_filename = MODELS_DIR + 'nlp_dtm.pkl'
+
+df = None
+loaded_model = None
+dtm = None
+
+def load_files():
+    global df, loaded_model, dtm
+
+    df = pd.read_csv(data_filename)
+    loaded_model = pickle.load(open(model_filename, 'rb'))
+    dtm = pickle.load(open(dtm_filename, 'rb'))
+
+
+@router.get('/viz')
+async def viz(artist, song):
+    if dtm is None:
+        load_files()
+
+    #function to get 5 nearest songs
+    def select_nearest_songs(artist, song):
+        
+        #translate artist, song into doc dtm.iloc[x].values
+        artist_songs = df.loc[df['track_artist']==artist]
+        selected_song = artist_songs.loc[artist_songs['track_name']==song]
+        x = selected_song.index
+        x = x[0]
+        x = x.item()
+
+        doc = dtm.loc[x].values
+        result = loaded_model.kneighbors([doc], n_neighbors=6)
+        
+        rec_songs = {"artist":[], "song":[]};
+        
+        for i in range(5):
+            song = result[1][0][1+i]
+
+            #translate the loc into an artist and song title
+            artist = df.loc[song]['track_artist']
+            song = df.loc[song]['track_name']
+            
+            rec_songs['artist'].append(artist)
+            rec_songs['song'].append(song)
+        
+        return rec_songs
+
+    #Fetch lyrics function
+    def get_lyrics(artist, song):
+        songs_by_artist = df[['track_id','track_name']][df['track_artist'] == artist]
+        song_id = songs_by_artist[songs_by_artist['track_name'] == song]
+        song_id = song_id[:1] #This selects the first if there are more than one
+        song_id = song_id['track_id']
+        song_id = pd.Series(song_id).item()
+        lyrics = df['lyrics'][df['track_id'] == song_id]
+        lyrics = pd.Series(lyrics).item()
+
+    #Print lyrics from both songs to compare
+    song_recs = select_nearest_songs(artist, song)
     
-    ### Path Parameter
-    `statecode`: The [USPS 2 letter abbreviation](https://en.wikipedia.org/wiki/List_of_U.S._state_and_territory_abbreviations#Table) 
-    (case insensitive) for any of the 50 states or the District of Columbia.
+    rec_artist = song_recs['artist'][0]
+    rec_song = song_recs['song'][0]
+    
+    lyrics1 = get_lyrics(artist, song)
+    lyrics2 = get_lyrics(rec_artist, rec_song)
+    
+    #Visualization Word Cloud
+    def show_wordcloud(data, title = None):
+        wordcloud = WordCloud(
+            background_color='white',
+            stopwords=stopwords,
+            max_words=50,
+            max_font_size=40,
+            scale=3,
+            random_state=37).generate(str(data))
+        
+        fig = plt.figure(1, figsize=(12,12))
+        plt.axis('off')
+        if title:
+            fig.suptitle(title, fontsize=20)
+            fig.subplots_adjust(top=2.3)
+            
+        plt.imshow(wordcloud)
+        plt.show()
 
-    ### Response
-    JSON string to render with [react-plotly.js](https://plotly.com/javascript/react/)
-    """
-
-    # Validate the state code
-    statecodes = {
-        'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas', 
-        'CA': 'California', 'CO': 'Colorado', 'CT': 'Connecticut', 
-        'DE': 'Delaware', 'DC': 'District of Columbia', 'FL': 'Florida', 
-        'GA': 'Georgia', 'HI': 'Hawaii', 'ID': 'Idaho', 'IL': 'Illinois', 
-        'IN': 'Indiana', 'IA': 'Iowa', 'KS': 'Kansas', 'KY': 'Kentucky', 
-        'LA': 'Louisiana', 'ME': 'Maine', 'MD': 'Maryland', 
-        'MA': 'Massachusetts', 'MI': 'Michigan', 'MN': 'Minnesota', 
-        'MS': 'Mississippi', 'MO': 'Missouri', 'MT': 'Montana', 
-        'NE': 'Nebraska', 'NV': 'Nevada', 'NH': 'New Hampshire', 
-        'NJ': 'New Jersey', 'NM': 'New Mexico', 'NY': 'New York', 
-        'NC': 'North Carolina', 'ND': 'North Dakota', 'OH': 'Ohio', 
-        'OK': 'Oklahoma', 'OR': 'Oregon', 'PA': 'Pennsylvania', 
-        'RI': 'Rhode Island', 'SC': 'South Carolina', 'SD': 'South Dakota', 
-        'TN': 'Tennessee', 'TX': 'Texas', 'UT': 'Utah', 'VT': 'Vermont', 
-        'VA': 'Virginia', 'WA': 'Washington', 'WV': 'West Virginia', 
-        'WI': 'Wisconsin', 'WY': 'Wyoming'
-    }
-    statecode = statecode.upper()
-    if statecode not in statecodes:
-        raise HTTPException(status_code=404, detail=f'State code {statecode} not found')
-
-    # Get the state's unemployment rate data from FRED
-    url = f'https://fred.stlouisfed.org/graph/fredgraph.csv?id={statecode}UR'
-    df = pd.read_csv(url, parse_dates=['DATE'])
-    df.columns = ['Date', 'Percent']
-
-    # Make Plotly figure
-    statename = statecodes[statecode]
-    fig = px.line(df, x='Date', y='Percent', title=f'{statename} Unemployment Rate')
-
-    # Return Plotly figure as JSON string
-    return fig.to_json()
+    return show_wordcloud(lyrics1), show_wordcloud(lyrics2)
