@@ -8,8 +8,11 @@ from joblib import load
 from os.path import dirname
 
 DIR = dirname(__file__)
+print(DIR)
 MODELS_DIR = DIR + '/../models/'
+print(MODELS_DIR)
 DATA_DIR = DIR + '/../data/'
+print(DATA_DIR)
 
 data_filename = DATA_DIR + 'NLP_songs_data.zip'
 model_filename = MODELS_DIR + 'nlp_model.pkl'
@@ -30,9 +33,6 @@ def load_files():
 rec_cols = ['artist','song']
 
 load_files()
-print(loaded_model)
-#print(dtm)
-#Plotly Dash
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -81,19 +81,12 @@ def set_options(artist):
 )
 def predict(artist, song):
     #translate artist, song into doc dtm.iloc[x].values
-    print(f'<{artist}>,<{song}>')
     artist_songs = df[df['track_artist'] == artist]
-    print(artist_songs)
     selected_song = artist_songs.loc[artist_songs['track_name'] == song]
-    print(selected_song)
     x = selected_song.index
-    print(x)
     x = x[0]
-    print(x)
     x = x.item()
-    print(x)
     doc = dtm.loc[x].values
-    print(doc)
     result = loaded_model.kneighbors([doc], n_neighbors=6)
     rec_songs = {"artist": [], "song": []};
     for i in range(5):
@@ -103,11 +96,11 @@ def predict(artist, song):
         song = df.loc[song]['track_name']
         rec_songs['artist'].append(artist)
         rec_songs['song'].append(song)
-    print(rec_songs)
     return html.Table(
             [html.Tr([
                 html.Td(rec_songs[col][i]) for col in rec_cols
             ]) for i in range(5)]
         ) 
+
 if __name__ == '__main__':
     app.run_server(debug=True)
