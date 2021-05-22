@@ -37,6 +37,7 @@ load_files()
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+server = app.server
 
 app.layout = html.Div([
     html.Label("Spotifinder: recommending you songs with similar lyrics", style={'fontSize':40, 'textAlign':'left'}),
