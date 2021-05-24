@@ -7,20 +7,21 @@ import pandas as pd
 from joblib import load
 from os.path import dirname
 
-# DIR = dirname(__file__)
-# print(DIR)
-# MODELS_DIR = DIR + '/../models/'
-# print(MODELS_DIR)
-# DATA_DIR = DIR + '/../data/'
-# print(DATA_DIR)
+DIR = dirname(__file__)
+print(__file__)
+print(DIR)
+MODELS_DIR = DIR + '/../models/'
+print(MODELS_DIR)
+DATA_DIR = DIR + '/../data/'
+print(DATA_DIR)
 
-# data_filename = DATA_DIR + 'NLP_songs_data.zip'
-# model_filename = MODELS_DIR + 'nlp_model.pkl'
-# dtm_filename = MODELS_DIR + 'nlp_dtm.pkl'
+data_filename = DATA_DIR + 'NLP_songs_data.zip'
+model_filename = MODELS_DIR + 'nlp_model.pkl'
+dtm_filename = MODELS_DIR + 'nlp_dtm.pkl'
 
-data_filename = 'https://github.com/TemsyChen/Spotifinder/blob/main/data/NLP_songs_data.zip'
-model_filename = 'https://github.com/TemsyChen/Spotifinder/blob/main/models/nlp_model.pkl'
-dtm_filename = 'https://github.com/TemsyChen/Spotifinder/blob/main/models/nlp_dtm.pkl'
+# data_filename = 'https://github.com/TemsyChen/Spotifinder/blob/main/data/NLP_songs_data.zip'
+# model_filename = 'https://github.com/TemsyChen/Spotifinder/blob/main/models/nlp_model.pkl'
+# dtm_filename = 'https://github.com/TemsyChen/Spotifinder/blob/main/models/nlp_dtm.pkl'
 
 df = None
 loaded_model = None
