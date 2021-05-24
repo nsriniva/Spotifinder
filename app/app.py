@@ -5,30 +5,26 @@ import plotly.express as px
 from dash.dependencies import Input, Output
 import pandas as pd
 from joblib import load
-from os.path import dirname
+#from os.path import dirname
+import os
 
-# DIR = dirname(__file__)
-# print(__file__) #/app/app/app.py
-# print(DIR) #/app/app
-MODELS_DIR = '/app/../models/' #DIR + '/../models/'
-print(MODELS_DIR) #/app/app/../models/
-DATA_DIR = '/app/../data/' #DIR + '/../data/'
-print(DATA_DIR) #/app/app/../data/
+DIR = os.path.dirname(os.path.abspath(__file__))
+print(__file__) #/app/app/app.py
+print(DIR) #/app/app
+#MODELS_DIR = DIR + '/../models/'
+MODELS_DIR = os.path.join(DIR, '/../models/')
+print(MODELS_DIR)
+#DATA_DIR = DIR + '/../data/'
+DATA_DIR = os.path.join(DIR, '/../data/')
+print(DATA_DIR) 
 
-'''
-/app/app/app.py
-/app/app
-/app/app/../models/
-/app/app/../data/
-'''
+# data_filename = DATA_DIR + 'NLP_songs_data.zip'
+# model_filename = MODELS_DIR + 'nlp_model.pkl'
+# dtm_filename = MODELS_DIR + 'nlp_dtm.pkl'
 
-data_filename = DATA_DIR + 'NLP_songs_data.zip'
-model_filename = MODELS_DIR + 'nlp_model.pkl'
-dtm_filename = MODELS_DIR + 'nlp_dtm.pkl'
-
-# data_filename = 'https://github.com/TemsyChen/Spotifinder/blob/main/data/NLP_songs_data.zip'
-# model_filename = 'https://github.com/TemsyChen/Spotifinder/blob/main/models/nlp_model.pkl'
-# dtm_filename = 'https://github.com/TemsyChen/Spotifinder/blob/main/models/nlp_dtm.pkl'
+data_filename = os.path.join(DATA_DIR, 'NLP_songs_data.zip')
+model_filename = os.path.join(MODELS_DIR, 'nlp_model.pkl')
+dtm_filename = os.path.join(MODELS_DIR, 'nlp_dtm.pkl')
 
 df = None
 loaded_model = None
