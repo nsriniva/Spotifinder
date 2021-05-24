@@ -11,11 +11,11 @@ import os
 DIR = os.path.dirname(os.path.abspath(__file__))
 print(__file__) #/app/app/app.py
 print(DIR) #/app/app
-data_filename = DIR + '/data/NLP_songs_data.zip')
+data_filename = (DIR + '/data/NLP_songs_data.zip')
 print(data_filename)
-model_filename = DIR + '/models/nlp_model.pkl')
+model_filename = (DIR + '/models/nlp_model.pkl')
 print(model_filename)
-dtm_filename = DIR + '/models/nlp_dtm.pkl')
+dtm_filename = (DIR + '/models/nlp_dtm.pkl')
 print(dtm_filename)
 
 
