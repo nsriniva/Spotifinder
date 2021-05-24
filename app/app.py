@@ -7,7 +7,7 @@ import pandas as pd
 from joblib import load
 from os.path import dirname
 
-DIR = dirname(__file__)
+DIR = dirname('/app')
 print(DIR)
 MODELS_DIR = DIR + '/../models/'
 print(MODELS_DIR)
