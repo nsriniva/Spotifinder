@@ -12,14 +12,4 @@ scaler.pkl
 genres_tfidf.pkl
 fg_encoder.h5
 fg_encoded_df.pkl
-
-/models
-encoded_dtm.pkl
-encoder.h5.zip
-fg_encoded_df.pkl
-fg_encoder.h5
-genres_tfidf.pkl
-scaler.pkl
-tfidf.pkl
-
 encoder.h5
