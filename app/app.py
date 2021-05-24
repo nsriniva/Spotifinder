@@ -11,11 +11,11 @@ import os
 DIR = os.path.dirname(os.path.abspath(__file__))
 print(__file__) #/app/app/app.py
 print(DIR) #/app/app
-#MODELS_DIR = DIR + '/../models/'
-MODELS_DIR = os.path.join(DIR, '/../models/')
+MODELS_DIR = DIR + '/../models/'
+# MODELS_DIR = os.path.join(DIR, '/../models/')
 print(MODELS_DIR)
-#DATA_DIR = DIR + '/../data/'
-DATA_DIR = os.path.join(DIR, '/../data/')
+DATA_DIR = DIR + '/../data/'
+#DATA_DIR = os.path.join(DIR, '/../data/')
 print(DATA_DIR) 
 
 # data_filename = DATA_DIR + 'NLP_songs_data.zip'
