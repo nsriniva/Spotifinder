@@ -7,13 +7,20 @@ import pandas as pd
 from joblib import load
 from os.path import dirname
 
-DIR = dirname(__file__)
-print(__file__)
-print(DIR)
-MODELS_DIR = DIR + '/../models/'
-print(MODELS_DIR)
-DATA_DIR = DIR + '/../data/'
-print(DATA_DIR)
+# DIR = dirname(__file__)
+# print(__file__) #/app/app/app.py
+# print(DIR) #/app/app
+MODELS_DIR = '/app/models/' #DIR + '/../models/'
+print(MODELS_DIR) #/app/app/../models/
+DATA_DIR = '/app/data/' #DIR + '/../data/'
+print(DATA_DIR) #/app/app/../data/
+
+'''
+/app/app/app.py
+/app/app
+/app/app/../models/
+/app/app/../data/
+'''
 
 data_filename = DATA_DIR + 'NLP_songs_data.zip'
 model_filename = MODELS_DIR + 'nlp_model.pkl'
