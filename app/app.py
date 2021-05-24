@@ -23,8 +23,11 @@ print(DATA_DIR)
 # dtm_filename = MODELS_DIR + 'nlp_dtm.pkl'
 
 data_filename = os.path.join(DATA_DIR, 'NLP_songs_data.zip')
+print(data_filename)
 model_filename = os.path.join(MODELS_DIR, 'nlp_model.pkl')
+print(model_filename)
 dtm_filename = os.path.join(MODELS_DIR, 'nlp_dtm.pkl')
+print(dtm_filename)
 
 df = None
 loaded_model = None
