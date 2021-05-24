@@ -10,9 +10,9 @@ from os.path import dirname
 # DIR = dirname(__file__)
 # print(__file__) #/app/app/app.py
 # print(DIR) #/app/app
-MODELS_DIR = '/app/models/' #DIR + '/../models/'
+MODELS_DIR = '/app/../models/' #DIR + '/../models/'
 print(MODELS_DIR) #/app/app/../models/
-DATA_DIR = '/app/data/' #DIR + '/../data/'
+DATA_DIR = '/app/../data/' #DIR + '/../data/'
 print(DATA_DIR) #/app/app/../data/
 
 '''
