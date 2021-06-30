@@ -4,12 +4,7 @@ tracks_genres_lyrics_lang.csv.zipab
 artists.csv.zip
 tracks.csv.zip
 spotify_songs.csv.zip
-tracks_genres_lyrics_en.csv.zip
-encoded_dtm.pkl
-encoder.h5.zip
-tfidf.pkl
-scaler.pkl
-genres_tfidf.pkl
-fg_encoder.h5
-fg_encoded_df.pkl
-encoder.h5
+NLP_songs_data.zip
+
+nlp_model.pkl
+nlp_dtm.pkl

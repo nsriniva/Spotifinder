@@ -36,13 +36,15 @@ TRACKS = DATA_DIR + 'tracks_genres_lyrics_en.csv.zip'
 class FindSongs():
     '''
     This class implements 3 methods:
-    (1) find_song_entries - Given a song suggestion string containing partial/whole song name
+    (1) find_song_entries - Given a song suggestion string containing 
+    partial/whole song name
     and/or artist, returns a dataframe of possible matches
-    (2) find_song_entry - Given a song suggestion string returns either a dataframe of
-    possible matches(if the best_choice kw argument is False) or a single entry(if the
-    best_choice argumen is True - this is the default value)
-    (3) get_recommendations - Given a song entry returns a dataframe of songs that are
-    similar.
+    (2) find_song_entry - Given a song suggestion string returns either 
+    a dataframe of possible matches(if the best_choice kw argument is 
+    False) or a single entry(if the best_choice argumen is True - this 
+    is the default value)
+    (3) get_recommendations - Given a song entry returns a dataframe of 
+    songs that are similar.
     '''
     def __init__(self):
 
@@ -134,15 +136,19 @@ class FindSongs():
         if best_choice:
             # The caller wants just one entry for the best match
 
-            # Given index value of a song entry row, returns a set of tokens from the combined
-            # name and artists columns.
-            # The array syntax ['name'] is used in place of the dot syntax .name because
-            # .name returns the value from the index column
-            name_artists = lambda x: set(tokenize(df.loc[x]['name']+' '+df.loc[x].artists).split())
+            # Given index value of a song entry row, returns a set of
+            # tokens from the combined name and artists columns.
+            # The array syntax ['name'] is used in place of the dot
+            # syntax .name because .name returns the value from the index
+            # column
+            name_artists = lambda x: set(tokenize(df.loc[x]['name']+' '+
+                                                  df.loc[x].artists).split())
 
-            # Given a set of tokens, it returns the length of its intersection with the sugg_set
-            # This is used as a measure how similar the input is to the sugg_set - the larger the
-            # return value, the greater the similarity
+            # Given a set of tokens, it returns the length of its
+            # intersection with the sugg_set
+            # This is used as a measure how similar the input is to the
+            # sugg_set - the larger the return value, the greater the
+            # similarity
             score_func = lambda x: len(sugg_set.intersection(x))
 
             choices = [(y, name_artists(y)) for y in choice]
@@ -150,7 +156,7 @@ class FindSongs():
             best_score = score_func(choices[0][1])
             for idx, nm_art in enumerate(choices[1:]):
                 score = score_func(nm_art[1])
-                #print(f'{nm_art[1]}/{choices[best_idx][1]}/{sugg_set}:: {score}/{best_score}')
+                #print(f'{nm_art[1]}/{choices[best_idx][1]}/{sugg_set}::{score}/{best_score}')
                 if score > best_score:
                     best_score = score
                     best_idx = idx+1
@@ -163,8 +169,8 @@ class FindSongs():
         '''
         Given a song entry x, returns a dataframe of similar songs.
 
-        The similarity is determined based on the numerical features(detailed
-        in self.features) along with genres feature.
+        The similarity is determined based on the numerical 
+        features(detailed in self.features) along with genres feature.
         '''
         # Convert the genres feature to a vector
         gvec = self.genres_tfidf.transform([tokenize(x.genres)]).todense()
