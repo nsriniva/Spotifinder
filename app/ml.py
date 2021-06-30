@@ -9,8 +9,6 @@ import pickle
 from os.path import dirname
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-from enum import Enum
-
 log = logging.getLogger(__name__)
 router = APIRouter()
 
@@ -33,18 +31,27 @@ def load_files():
     loaded_model = pickle.load(open(model_filename, 'rb'))
     dtm = pickle.load(open(dtm_filename, 'rb'))
 
-class Artist(str, Enum):
-    PostMalone = "Post Malone"
-    TheWeeknd = "The Weeknd"
-    CeeLoGreen = "CeeLo Green"
+class Item(BaseModel):
+    """Use this data model to parse the request body JSON."""
 
-class Song(str, Enum):
-    Circles = "Circles"
-    Heartless = "Heartless"
-    BabyItsCold = "Baby It's Cold Outside (feat. Christina Aguilera)"
+    x1: float = Field(..., example=3.14)
+    x2: int = Field(..., example=-42)
+    x3: str = Field(..., example='banjo')
+
+    def to_df(self):
+        """Convert pydantic object to pandas dataframe with 1 row."""
+        return pd.DataFrame([dict(self)])
+
+    @validator('x1')
+    def x1_must_be_positive(cls, value):
+        """Validate that x1 is a positive number."""
+        assert value > 0, f'x1 == {value}, must be > 0'
+        return value
+
+
 
 @router.post('/predict')
-async def predict(artist: Artist, song: Song):
+async def predict(artist, song):
     if dtm is None:
         load_files()
     #translate artist, song into doc dtm.iloc[x].values
