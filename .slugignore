@@ -5,6 +5,3 @@ artists.csv.zip
 tracks.csv.zip
 spotify_songs.csv.zip
 NLP_songs_data.zip
-
-nlp_model.pkl
-nlp_dtm.pkl
