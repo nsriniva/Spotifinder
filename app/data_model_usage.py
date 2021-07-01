@@ -1,5 +1,5 @@
 from pandas import Series
-from data_model.find_songs import FindSongs
+from .data_model.find_songs import FindSongs
 
 FEATURES = ['name', 'artists', 'popularity']
 
@@ -21,11 +21,11 @@ def display_song_entries(x):
 
 fs = FindSongs()
 
-test_vecs = ["Never gonna give you up astley", "be happy  mcferrin", "Fast Chapman", "Uptown Funk  Mars ", "I'm yours Mraz", "Walk like an egyptian bangles", "Manic Monday", "Last Christmas Wham", "Thriller Michael Jackson", "Heart-Shaped Box Nirvana","Cornet Chop Suey Louis Armstrong", "Born in the USA Bruce Springsteen", "Living on a prayer Bon Jovi", "Okay computer Radiohead", "Smooth criminal Michael Jackson"]
+test_vecs = ["Never gonna give you up astley", "be happy  mcferrin", "Fast Chapman", "Uptown Funk  Mars ", "I'm yours Mraz", "Walk like an egyptian bangles", "Manic Monday", "Last Christmas Wham", "Thriller Michael Jackson", "Heart-Shaped Box Nirvana","Cornet Chop Suey Louis Armstrong", "Born in the USA Bruce Springsteen", "Living on a prayer Bon Jovi", "Okay computer Radiohead", "Radiohead", "Smooth criminal Michael Jackson"]
 
 for t in test_vecs:
 
-    heading = f"Best 5 matches for '{t}'"
+    heading = f"Best matches for '{t}'"
     display_heading(heading)
     display_song_entries(fs.find_song_entry(t, best_choice=False))
     print('\n')
