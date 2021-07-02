@@ -3,50 +3,26 @@ import dash_core_components as dcc
 import dash_html_components as html
 import plotly.express as px
 from dash.dependencies import Input, Output
-import pandas as pd
-from joblib import load
-from os.path import dirname
+from .data_model.find_songs import FindSongs
 
-DIR = dirname(__file__)
+REC_COLS = ['artist','song']
+FEATURES = ['name', 'artists', 'popularity']
 
-MODELS_DIR = DIR + '/../models/'
-DATA_DIR = DIR + '/../data/'
-
-data_filename = DATA_DIR + 'NLP_songs_data.zip'
-model_filename = MODELS_DIR + 'nlp_model.pkl'
-dtm_filename = MODELS_DIR + 'nlp_dtm.pkl'
-
-df = None
-loaded_model = None
-dtm = None
-
-def load_files():
-    global df, loaded_model, dtm
-    print('Loading files')
-    df = pd.read_csv(data_filename)
-    loaded_model = load(model_filename)
-    dtm = load(dtm_filename)
-    print('Loaded files')
-
-rec_cols = ['artist','song']
-
-load_files()
+get_song_info = lambda x:  x[FEATURES].to_list()
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
+findSongs = FindSongs()
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
 
 app.layout = html.Div([
-    html.Label("Spotifinder: recommending you songs with similar lyrics", style={'fontSize':40, 'textAlign':'left'}),
-    html.Label("Artist:", style={'fontSize':30, 'textAlign':'left'}),
-    dcc.Dropdown(
-        id='Artist',
-        options=[{
-            'label': c,
-            'value': c}
-                 for c in df['track_artist']],
-        value = df['track_artist'][0]
+    html.Label("Spotifinder: Recommending Songs", style={'fontSize':40, 'textAlign':'left'}),
+    html.Label("Song Name and/or Artist(s)", style={'fontSize':30, 'textAlign':'left'}),
+    dcc.Input(
+        id='Hint',
+        type = 'text',
+        placeholder = 'Song Name and/or Artist(s)'
     ),
     html.Label("Songs:", style={'fontSize':30, 'textAlign':'left'}),
     dcc.Dropdown(id='Songs',
@@ -54,7 +30,7 @@ app.layout = html.Div([
     html.Label("Recommendations:", style={'fontSize':30, 'textAlign':'left'}),
     html.Div([
         html.Div(
-            [html.Tr([html.Th(col) for col in rec_cols])], id='rec-table', style={'width': '100%', 'height': '100%'}),
+            [html.Tr([html.Th(col) for col in REC_COLS])], id='rec-table', style={'width': '100%', 'height': '100%'}),
         dcc.Interval(id='interval_component',
                      interval=1000,
                      n_intervals=0
@@ -65,40 +41,32 @@ app.layout = html.Div([
 @app.callback(
     Output('Songs', 'options'),
     Output('Songs', 'value'),
-    [Input('Artist', 'value')]
+    [Input('Hint', 'value')]
 )
-def set_options(artist):
-    dff = df[df.track_artist == artist]
-    dicosongs = [{'label': c, 'value': c} for c in sorted(dff.track_name.unique())]
-    # values_selected = [x['value'] for x in dicosongs]
-    return dicosongs, dicosongs[0]['value']
+def set_options(hint):
+    df = findSongs.find_song_entries(hint)
+    best_idx = findSongs.get_best_choice(hint, df)
+    dicosongs = [{'label': get_song_info(row), 'value': idx} for idx,row in df.iterrows()]
+    return dicosongs, best_idx
 
 @app.callback(
     Output('rec-table', 'children'),
-    [Input('Artist', 'value')],
     [Input('Songs', 'value')],
 )
-def predict(artist, song):
-    #translate artist, song into doc dtm.iloc[x].values
-    artist_songs = df[df['track_artist'] == artist]
-    selected_song = artist_songs.loc[artist_songs['track_name'] == song]
-    x = selected_song.index
-    x = x[0]
-    x = x.item()
-    doc = dtm.loc[x].values
-    result = loaded_model.kneighbors([doc], n_neighbors=6)
+def predict(song):
+    selected_song = findSongs.get_df_entry(song)
+
+    result = findSongs.get_recommendations(selected_song)
     rec_songs = {"artist": [], "song": []};
-    for i in range(5):
-        song = result[1][0][1 + i]
-        # translate the loc into an artist and song title
-        artist = df.loc[song]['track_artist']
-        song = df.loc[song]['track_name']
+    for idx, row in result.iterrows():
+        artist = row['artists']
+        song = row['name']
         rec_songs['artist'].append(artist)
         rec_songs['song'].append(song)
     return html.Table(
             [html.Tr([
-                html.Td(rec_songs[col][i]) for col in rec_cols
-            ]) for i in range(5)]
+                html.Td(rec_songs[col][i]) for col in REC_COLS
+            ]) for i in range(len(rec_songs))]
         ) 
 
 if __name__ == '__main__':

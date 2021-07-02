@@ -5,7 +5,6 @@ FEATURES = ['name', 'artists', 'popularity']
 
 get_song_info = lambda x:  x[FEATURES].to_list()
 
-
 def display_heading(x):
     print(x)
     print('-'*len(x))
@@ -15,9 +14,9 @@ def display_song_entry(x, border=True):
     print(info)
 
 def display_song_entries(x):
-    entries = [get_song_info(y) for _,y in x.iterrows()]
+    entries = [(idx,get_song_info(row)) for idx,row in x.iterrows()]
     for entry in entries:
-        print(entry)
+        print(entry[1])
 
 fs = FindSongs()
 
