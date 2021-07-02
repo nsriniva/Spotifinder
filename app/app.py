@@ -6,9 +6,9 @@ from dash.dependencies import Input, Output
 from .data_model.find_songs import FindSongs
 
 REC_COLS = ['artist','song']
-FEATURES = ['name', 'artists', 'popularity']
+FEATURES = ['name', 'artists']
 
-get_song_info = lambda x:  x[FEATURES].to_list()
+get_song_info = lambda x:  ' '.join(x[FEATURES].to_list())
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -22,7 +22,8 @@ app.layout = html.Div([
     dcc.Input(
         id='Hint',
         type = 'text',
-        placeholder = 'Song Name and/or Artist(s)'
+        placeholder = 'Song Name and/or Artist(s)',
+        debounce=True
     ),
     html.Label("Songs:", style={'fontSize':30, 'textAlign':'left'}),
     dcc.Dropdown(id='Songs',
@@ -44,6 +45,8 @@ app.layout = html.Div([
     [Input('Hint', 'value')]
 )
 def set_options(hint):
+    if hint is None:
+        hint = 'Fast Chapman'
     df = findSongs.find_song_entries(hint)
     best_idx = findSongs.get_best_choice(hint, df)
     dicosongs = [{'label': get_song_info(row), 'value': idx} for idx,row in df.iterrows()]
