@@ -59,7 +59,7 @@ class FindSongs():
         # Load the encoded DTM saved in encoded_dtm.pkl
         self.encoded_dtm = load(ENCODED_DTM)
         # Fit NearestNeighbors on encoded DTM
-        self.nn = NearestNeighbors(n_neighbors=7, algorithm='ball_tree')
+        self.nn = NearestNeighbors(n_neighbors=10, algorithm='ball_tree')
         self.nn.fit(self.encoded_dtm)
 
         # Numerical features associated with a song entry
@@ -81,7 +81,7 @@ class FindSongs():
         self.scaler = load(SCALER)
 
         # Fit NearestNeighbors on encoded DF
-        self.fg_nn = NearestNeighbors(n_neighbors=7, algorithm='ball_tree')
+        self.fg_nn = NearestNeighbors(n_neighbors=10, algorithm='ball_tree')
         self.fg_nn.fit(self.fg_encoded_df)
 
         # Load tracks_df from zipped csv file tracks_genres_lyrics_en.csv.zip
