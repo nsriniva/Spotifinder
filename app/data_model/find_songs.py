@@ -93,7 +93,7 @@ class FindSongRecommendations():
         self.fg_nn = NearestNeighbors(n_neighbors=10, algorithm='ball_tree')
         self.fg_nn.fit(self.fg_encoded_df)
 
-    def get_recommendations(self, x):
+    def get_recommended_songs(self, x):
         '''
         Given a song entry x, returns a dataframe of similar songs.
 
@@ -116,7 +116,7 @@ class FindSongRecommendations():
         #    sort_values(ascending=False).index.tolist()
 
         # Return a dataframe containing the sorted list of entries.
-        return self.tracks_df.iloc[entries]
+        return entries
 
 class FindSongsData():
 
@@ -132,15 +132,20 @@ class FindSongsData():
     def get_df_entry(self, idx):
         return self.tracks_df.loc[idx]
 
-    def get_song_entries_data(self, entries):
+    def get_song_entries_data(self, entries, sorted=False):
         # Get the list of indices of closest matches sorted in descending
         # order of popularity i.e. the first entry will have the highest
         # popularity value
-        entries = self.tracks_df.iloc[entries].popularity.\
-            sort_values(ascending=False).index.tolist()
+        if sorted:
+            entries = self.tracks_df.iloc[entries].popularity.\
+                sort_values(ascending=False).index.tolist()
 
-        # Return a dataframe containing the entries
-        return self.tracks_df.loc[entries]
+            # Return a dataframe containing the sorted selection of entries
+            return self.tracks_df.loc[entries]
+
+        # Return a dataframe containing the selected entries
+        return self.tracks_df.iloc[entries]
+
         
 
 class FindSongs(FindSongsData, FindSongEntries, FindSongRecommendations):
@@ -164,7 +169,7 @@ class FindSongs(FindSongsData, FindSongEntries, FindSongRecommendations):
     def find_song_entries(self, sugg_str):
 
         entries = self.find_matching_songs(sugg_str)
-        return self.get_song_entries_data(entries)
+        return self.get_song_entries_data(entries, sorted=True)
         
     
     def get_best_choice(self, sugg_str, df):
@@ -228,4 +233,15 @@ class FindSongs(FindSongsData, FindSongEntries, FindSongRecommendations):
 
         return df
 
-
+    def get_recommendations(self, x):
+        '''
+        Given a song entry x, returns a dataframe of similar songs.
+        
+        The similarity is determined based on the numerical 
+        features(detailed in self.features) along with genres feature.
+        '''
+        
+        entries = self.get_recommended_songs(x)
+        
+        return self.get_song_entries_data(entries)
+ 
