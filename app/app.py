@@ -5,7 +5,7 @@ import dash_table as dt
 import plotly.express as px
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
-from .data_model.find_songs import FindSongs
+from .data_model.find_songs import FindSongData, FindSongEntries, FindSongRecommendations, getBestChoice
 
 REC_COLS = ['artist','song']
 FEATURES = ['name', 'artists']
@@ -15,7 +15,10 @@ get_song_info = lambda x:  ' '.join(x[FEATURES].to_list())
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
-findSongs = FindSongs()
+findSongEntries = FindSongEntries()
+findSongRecommendations = FindSongRecommendations()
+findSongData = FindSongData()
+
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
 
@@ -79,8 +82,9 @@ app.layout = html.Div([
 def set_options(hint):
     if hint is None:
         raise PreventUpdate
-    df = findSongs.find_song_entries(hint)
-    best_idx = findSongs.get_best_choice(hint, df)
+    entries = findSongEntries.find_matching_songs(hint)
+    df = findSongData.get_song_entries_data(entries, sorted=True)
+    best_idx = getBestChoice(hint, df)
     dicosongs = [{'label': get_song_info(row), 'value': idx} for idx,row in df.iterrows()]
     return dicosongs, best_idx
 
@@ -91,9 +95,11 @@ def set_options(hint):
 def predict(song):
     if song is None:
         raise PreventUpdate
-    selected_song = findSongs.get_df_entry(song)
+    selected_song = findSongData.get_df_entry(song)
 
-    result = findSongs.get_recommendations(selected_song)
+    entries = findSongRecommendations.get_recommended_songs(selected_song)
+    result = findSongData.get_song_entries_data(entries)
+
     return result[FEATURES].to_dict('records')
 
     

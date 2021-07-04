@@ -33,6 +33,45 @@ SCALER = MODELS_DIR + 'scaler.pkl'
 
 TRACKS = DATA_DIR + 'tracks_genres_lyrics_en.csv.zip'
 
+def getBestChoice(sugg_str, df):
+
+    # Convert sugg_str to a set of tokens
+    sugg_set = set(tokenize(sugg_str).split())
+    
+    # Get the list of index values for the dataframe
+    choice = df.index.tolist()
+    
+    
+    # Given index value of a song entry row, returns a set of
+    # tokens from the combined name and artists columns.
+    # The array syntax ['name'] is used in place of the dot
+    # syntax .name because .name returns the value from the index
+    # column
+    name_artists = lambda x: set(tokenize(df.loc[x]['name']+' '+
+                                          df.loc[x].artists).split())
+    
+    # Given a set of tokens, it returns the length of its
+    # intersection with the sugg_set
+    # This is used as a measure how similar the input is to the
+    # sugg_set - the larger the return value, the greater the
+    # similarity
+    score_func = lambda x: len(sugg_set.intersection(x))
+    
+    choices = [(y, name_artists(y)) for y in choice]
+    best_idx = 0
+    best_score = score_func(choices[0][1])
+    for idx, nm_art in enumerate(choices[1:]):
+        score = score_func(nm_art[1])
+        #print(f'{nm_art[1]}/{choices[best_idx][1]}/{sugg_set}::{score}/{best_score}')
+        if score > best_score:
+            best_score = score
+            best_idx = idx+1
+            
+    choice = choices[best_idx][0]
+    #print(choice, best_idx, choices, choices[best_idx])
+    return choice
+
+
 class FindSongEntries():
 
     def __init__(self):
@@ -115,7 +154,7 @@ class FindSongRecommendations():
         # Return a dataframe containing the sorted list of entries.
         return entries
 
-class FindSongsData():
+class FindSongData():
 
     def __init__(self):
         super().__init__()
@@ -145,7 +184,7 @@ class FindSongsData():
 
         
 
-class FindSongs(FindSongsData, FindSongEntries, FindSongRecommendations):
+class FindSongs(FindSongData, FindSongEntries, FindSongRecommendations):
     '''
     This class implements 3 methods:
     (1) find_song_entries - Given a song suggestion string containing 
@@ -169,44 +208,7 @@ class FindSongs(FindSongsData, FindSongEntries, FindSongRecommendations):
         return self.get_song_entries_data(entries, sorted=True)
         
     
-    def get_best_choice(self, sugg_str, df):
-
-        # Convert sugg_str to a set of tokens
-        sugg_set = set(tokenize(sugg_str).split())
-
-        # Get the list of index values for the dataframe
-        choice = df.index.tolist()
-
-        
-        # Given index value of a song entry row, returns a set of
-        # tokens from the combined name and artists columns.
-        # The array syntax ['name'] is used in place of the dot
-        # syntax .name because .name returns the value from the index
-        # column
-        name_artists = lambda x: set(tokenize(df.loc[x]['name']+' '+
-                                              df.loc[x].artists).split())
-        
-        # Given a set of tokens, it returns the length of its
-        # intersection with the sugg_set
-        # This is used as a measure how similar the input is to the
-        # sugg_set - the larger the return value, the greater the
-        # similarity
-        score_func = lambda x: len(sugg_set.intersection(x))
-
-        choices = [(y, name_artists(y)) for y in choice]
-        best_idx = 0
-        best_score = score_func(choices[0][1])
-        for idx, nm_art in enumerate(choices[1:]):
-            score = score_func(nm_art[1])
-            #print(f'{nm_art[1]}/{choices[best_idx][1]}/{sugg_set}::{score}/{best_score}')
-            if score > best_score:
-                best_score = score
-                best_idx = idx+1
-
-        choice = choices[best_idx][0]
-        #print(choice, best_idx, choices, choices[best_idx])
-        return choice
-        
+         
         
     def find_song_entry(self, sugg_str, df=None, best_choice=True):
         '''
@@ -224,9 +226,8 @@ class FindSongs(FindSongsData, FindSongEntries, FindSongRecommendations):
             df = self.find_song_entries(sugg_str)
         
         if best_choice:
-            choice = self.get_best_choice(sugg_str, df)
+            choice = getBestChoice(sugg_str, df)
             return self.get_df_entry(choice)
-            #return df.loc[choice]
 
         return df
 
