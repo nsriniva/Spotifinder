@@ -111,10 +111,7 @@ class FindSongRecommendations():
         # Get the list of indices of entries that are closest to
         # the input entry
         entries = self.fg_nn.kneighbors(encoded_vec)[1][0].tolist()
-        # Sort the list of indices in descending order of popularity
-        #entries = self.tracks_df.iloc[entries].popularity.\
-        #    sort_values(ascending=False).index.tolist()
-
+ 
         # Return a dataframe containing the sorted list of entries.
         return entries
 
@@ -235,10 +232,7 @@ class FindSongs(FindSongsData, FindSongEntries, FindSongRecommendations):
 
     def get_recommendations(self, x):
         '''
-        Given a song entry x, returns a dataframe of similar songs.
-        
-        The similarity is determined based on the numerical 
-        features(detailed in self.features) along with genres feature.
+        Given a song entry x, returns a dataframe of similar songs.       
         '''
         
         entries = self.get_recommended_songs(x)
