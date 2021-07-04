@@ -33,25 +33,14 @@ SCALER = MODELS_DIR + 'scaler.pkl'
 
 TRACKS = DATA_DIR + 'tracks_genres_lyrics_en.csv.zip'
 
-class FindSongs():
-    '''
-    This class implements 3 methods:
-    (1) find_song_entries - Given a song suggestion string containing 
-    partial/whole song name
-    and/or artist, returns a dataframe of possible matches
-    (2) find_song_entry - Given a song suggestion string returns either 
-    a dataframe of possible matches(if the best_choice kw argument is 
-    False) or a single entry(if the best_choice argumen is True - this 
-    is the default value)
-    (3) get_recommendations - Given a song entry returns a dataframe of 
-    songs that are similar.
-    '''
-    def __init__(self):
+class FindSongEntries():
 
+    def __init__(self):
+        super().__init__()
         # Extract encoder.h5 from encoder.h5.zip
         with ZipFile(ENCODER_PATH, 'r') as zipObj:
             zipObj.extractall()
-
+        
         # Load the model saved in ../../models/encoder.h5
         self.encoder = load_model(ENCODER)
         # Load the TfIDF vectorizer saved in tfidf.pkl
@@ -62,6 +51,26 @@ class FindSongs():
         self.nn = NearestNeighbors(n_neighbors=10, algorithm='ball_tree')
         self.nn.fit(self.encoded_dtm)
 
+    def find_matching_songs(self, sugg_str):
+        '''
+        Given sugg_str(a string containing part/whole of the
+        song's name and/or artist) returns a dataframe of
+        song entries that are the closest matches.
+        '''
+
+        # Vectorize the sugg_str by running it through tfidf
+        vec = self.tfidf.transform([tokenize(sugg_str)]).todense()
+        # Reduce dimensionality by running through encoder
+        encoded_vec = self.encoder.predict(vec)
+        # Get list of indices of entries that are closest to sugg_str
+        entries = self.nn.kneighbors(encoded_vec)[1][0].tolist()
+
+        return entries
+
+class FindSongRecommendations():
+
+    def __init__(self):
+        super().__init__()
         # Numerical features associated with a song entry
         self.features = [
             'popularity', 'duration_ms', 'explicit', 'danceability',
@@ -84,26 +93,46 @@ class FindSongs():
         self.fg_nn = NearestNeighbors(n_neighbors=10, algorithm='ball_tree')
         self.fg_nn.fit(self.fg_encoded_df)
 
+    def get_recommendations(self, x):
+        '''
+        Given a song entry x, returns a dataframe of similar songs.
+
+        The similarity is determined based on the numerical 
+        features(detailed in self.features) along with genres feature.
+        '''
+        # Convert the genres feature to a vector
+        gvec = self.genres_tfidf.transform([tokenize(x.genres)]).todense()
+        # Standardize the numerical features
+        fvec = self.scaler.transform([x[self.features]])
+        # Combine bot vectors to create a single features vector
+        vec = [fvec.tolist()[0] + gvec.tolist()[0]]
+        # Perform dimensionality reduction by running through fg_encoder
+        encoded_vec = self.fg_encoder.predict(vec)
+        # Get the list of indices of entries that are closest to
+        # the input entry
+        entries = self.fg_nn.kneighbors(encoded_vec)[1][0].tolist()
+        # Sort the list of indices in descending order of popularity
+        #entries = self.tracks_df.iloc[entries].popularity.\
+        #    sort_values(ascending=False).index.tolist()
+
+        # Return a dataframe containing the sorted list of entries.
+        return self.tracks_df.iloc[entries]
+
+class FindSongsData():
+
+    def __init__(self):
+        super().__init__()
         # Load tracks_df from zipped csv file tracks_genres_lyrics_en.csv.zip
         self.tracks_df = pd.read_csv(TRACKS)
-
+        
         # Get rid of superfluous columns and rows
         self.tracks_df.drop(columns=['Unnamed: 0'], inplace=True)
         self.tracks_df = self.tracks_df[self.tracks_df.genres.isna() == False]
 
-    def find_song_entries(self, sugg_str):
-        '''
-        Given sugg_str(a string containing part/whole of the
-        song's name and/or artist) returns a dataframe of
-        song entries that are the closest matches.
-        '''
+    def get_df_entry(self, idx):
+        return self.tracks_df.loc[idx]
 
-        # Vectorize the sugg_str by running it through tfidf
-        vec = self.tfidf.transform([tokenize(sugg_str)]).todense()
-        # Reduce dimensionality by running through encoder
-        encoded_vec = self.encoder.predict(vec)
-        # Get list of indices of entries that are closest to sugg_str
-        entries = self.nn.kneighbors(encoded_vec)[1][0].tolist()
+    def get_song_entries_data(self, entries):
         # Get the list of indices of closest matches sorted in descending
         # order of popularity i.e. the first entry will have the highest
         # popularity value
@@ -112,9 +141,31 @@ class FindSongs():
 
         # Return a dataframe containing the entries
         return self.tracks_df.loc[entries]
+        
 
-    def get_df_entry(self, idx):
-        return self.tracks_df.loc[idx]
+class FindSongs(FindSongsData, FindSongEntries, FindSongRecommendations):
+    '''
+    This class implements 3 methods:
+    (1) find_song_entries - Given a song suggestion string containing 
+    partial/whole song name
+    and/or artist, returns a dataframe of possible matches
+    (2) find_song_entry - Given a song suggestion string returns either 
+    a dataframe of possible matches(if the best_choice kw argument is 
+    False) or a single entry(if the best_choice argumen is True - this 
+    is the default value)
+    (3) get_recommendations - Given a song entry returns a dataframe of 
+    songs that are similar.
+    '''
+    def __init__(self):
+        super().__init__()
+
+
+
+    def find_song_entries(self, sugg_str):
+
+        entries = self.find_matching_songs(sugg_str)
+        return self.get_song_entries_data(entries)
+        
     
     def get_best_choice(self, sugg_str, df):
 
@@ -178,27 +229,3 @@ class FindSongs():
         return df
 
 
-    def get_recommendations(self, x):
-        '''
-        Given a song entry x, returns a dataframe of similar songs.
-
-        The similarity is determined based on the numerical 
-        features(detailed in self.features) along with genres feature.
-        '''
-        # Convert the genres feature to a vector
-        gvec = self.genres_tfidf.transform([tokenize(x.genres)]).todense()
-        # Standardize the numerical features
-        fvec = self.scaler.transform([x[self.features]])
-        # Combine bot vectors to create a single features vector
-        vec = [fvec.tolist()[0] + gvec.tolist()[0]]
-        # Perform dimensionality reduction by running through fg_encoder
-        encoded_vec = self.fg_encoder.predict(vec)
-        # Get the list of indices of entries that are closest to
-        # the input entry
-        entries = self.fg_nn.kneighbors(encoded_vec)[1][0].tolist()
-        # Sort the list of indices in descending order of popularity
-        #entries = self.tracks_df.iloc[entries].popularity.\
-        #    sort_values(ascending=False).index.tolist()
-
-        # Return a dataframe containing the sorted list of entries.
-        return self.tracks_df.iloc[entries]
