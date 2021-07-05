@@ -7,6 +7,36 @@ from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 from .data_model.find_songs import FindSongData, FindSongEntries, FindSongRecommendations, getBestChoice
 
+from typing import Any, Optional
+
+from pydantic import BaseModel
+
+
+class Model(BaseModel):
+    id: str
+    name: str
+    popularity: int
+    duration_ms: int
+    explicit: int
+    artists: str
+    id_artists: str
+    release_date: str
+    danceability: float
+    energy: float
+    key: int
+    loudness: float
+    mode: int
+    speechiness: float
+    acousticness: float
+    instrumentalness: float
+    liveness: float
+    valence: float
+    tempo: float
+    time_signature: int
+    lyrics: Any
+    genres: str
+    lang: str
+
 REC_COLS = ['artist','song']
 FEATURES = ['name', 'artists']
 SPOTIFINDER = 'Spotifinder'
@@ -96,8 +126,8 @@ def predict(song):
     if song is None:
         raise PreventUpdate
     selected_song = findSongData.get_df_entry(song)
-
-    entries = findSongRecommendations.get_recommended_songs(selected_song)
+    
+    entries = findSongRecommendations.get_recommended_songs_json(selected_song.to_json())
     result = findSongData.get_song_entries_data(entries)
 
     return result[FEATURES].to_dict('records')
