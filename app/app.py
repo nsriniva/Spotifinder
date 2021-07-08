@@ -97,7 +97,7 @@ def predict(song):
         raise PreventUpdate
     selected_song = findSongData.get_df_entry(song)
 
-    entries = findSongRecommendations.get_recommended_songs(selected_song)
+    entries = findSongRecommendations.get_recommended_songs_json(selected_song.to_json())
     result = findSongData.get_song_entries_data(entries)
 
     return result[FEATURES].to_dict('records')
@@ -105,3 +105,4 @@ def predict(song):
     
 if __name__ == '__main__':
     app.run_server(debug=True)
+
