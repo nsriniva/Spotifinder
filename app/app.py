@@ -7,6 +7,7 @@ from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 from .data_model.find_songs import FindSongData, FindSongEntries, FindSongRecommendations, getBestChoice
 
+
 REC_COLS = ['artist','song']
 FEATURES = ['name', 'artists']
 SPOTIFINDER = 'Spotifinder'
@@ -96,7 +97,6 @@ def predict(song):
     if song is None:
         raise PreventUpdate
     selected_song = findSongData.get_df_entry(song)
-
     entries = findSongRecommendations.get_recommended_songs_json(selected_song.to_json())
     result = findSongData.get_song_entries_data(entries)
 

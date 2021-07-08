@@ -32,6 +32,7 @@ for t in test_vecs:
     heading = f"Best match for '{t}'"
     display_heading(heading)
     choice = fs.find_song_entry(t)
+    print(choice.to_json())
     display_song_entry(choice)
     print('\n')
     
