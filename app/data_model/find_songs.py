@@ -132,13 +132,14 @@ class FindSongRecommendations():
         self.fg_nn = NearestNeighbors(n_neighbors=10, algorithm='ball_tree')
         self.fg_nn.fit(self.fg_encoded_df)
 
-    def get_recommended_songs(self, x):
+    def get_recommended_songs_json(self, xj):
         '''
         Given a song entry x, returns a dataframe of similar songs.
 
         The similarity is determined based on the numerical 
         features(detailed in self.features) along with genres feature.
         '''
+        x = pd.read_json(xj, typ='Series')
         # Convert the genres feature to a vector
         gvec = self.genres_tfidf.transform([tokenize(x.genres)]).todense()
         # Standardize the numerical features
@@ -153,6 +154,18 @@ class FindSongRecommendations():
  
         # Return a dataframe containing the sorted list of entries.
         return entries
+
+    def get_recommended_songs(self, x):
+        '''
+        Given a song entry x, returns a dataframe of similar songs.
+
+        The similarity is determined based on the numerical 
+        features(detailed in self.features) along with genres feature.
+        '''
+
+        xj = x.to_json()
+        
+        return self.get_recommended_songs_json(xj)
 
 class FindSongData():
 
