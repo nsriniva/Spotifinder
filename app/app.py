@@ -12,7 +12,7 @@ from typing import Any, Optional
 from pydantic import BaseModel
 
 
-class Model(BaseModel):
+class SongEntry(BaseModel):
     id: str
     name: str
     popularity: int
