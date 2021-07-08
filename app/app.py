@@ -1,4 +1,6 @@
 from os import getenv
+import logging
+import uvicorn
 
 from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
@@ -59,12 +61,12 @@ app = FastAPI(
 )
 
 @app.post('/matching_songs')
-def find_matching_songs(hint:str):
+async def find_matching_songs(hint:str):
     return findSongEntries.find_matching_songs(hint)
 
-@app.post('recommended_songs')
-def get_recommmended_songs(song:SongEntry):
+@app.post('/recommended_songs')
+async def get_recommmended_songs(song:SongEntry):
     return findSongRecommendations.get_recommended_songs_json(song.json())
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    uvicorn.run(app, debug=True)
