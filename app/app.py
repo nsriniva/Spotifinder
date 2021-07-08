@@ -7,35 +7,6 @@ from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
 from .data_model.find_songs import FindSongData, FindSongEntries, FindSongRecommendations, getBestChoice
 
-from typing import Any, Optional
-
-from pydantic import BaseModel
-
-
-class SongEntry(BaseModel):
-    id: str
-    name: str
-    popularity: int
-    duration_ms: int
-    explicit: int
-    artists: str
-    id_artists: str
-    release_date: str
-    danceability: float
-    energy: float
-    key: int
-    loudness: float
-    mode: int
-    speechiness: float
-    acousticness: float
-    instrumentalness: float
-    liveness: float
-    valence: float
-    tempo: float
-    time_signature: int
-    lyrics: Any
-    genres: str
-    lang: str
 
 REC_COLS = ['artist','song']
 FEATURES = ['name', 'artists']
