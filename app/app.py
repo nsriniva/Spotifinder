@@ -9,18 +9,23 @@ from dash.exceptions import PreventUpdate
 from .data_model.find_songs import FindSongData, getBestChoice
 
 from requests import post
-FIND_SONGS_URL = 'http://localhost:8000/'
+from os import getenv
+
+if (FIND_SONGS_URL := getenv('FIND_SONGS_URL')) is None:
+    FIND_SONGS_URL = 'http://localhost:5000/'
 FIND_MATCHING_SONGS = FIND_SONGS_URL+'matching_songs'
 GET_RECOMMENDED_SONGS = FIND_SONGS_URL+'recommended_songs'
 
+extract_id_list = lambda x: [int(y) for y in x[1:-2].split(',')]
+
 def find_matching_songs(hint):
     ret = post(FIND_MATCHING_SONGS, params={'hint':hint})
-    return eval(ret.text,{'__builtins__': None})
+    return extract_id_list(ret.text)
 
 
 def get_recommended_songs(selected_song):
     ret = post(GET_RECOMMENDED_SONGS,data=selected_song.to_json())
-    return eval(ret.text,{'__builtins__': None})
+    return extract_id_list(ret.text)
 
 REC_COLS = ['artist','song']
 FEATURES = ['name', 'artists']
