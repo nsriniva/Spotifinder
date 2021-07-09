@@ -1,5 +1,6 @@
 click==8.0.1
 colorama==0.4.4
+fastapi
 future==0.18.2
 greenlet==1.1.0
 itsdangerous==2.0.1
