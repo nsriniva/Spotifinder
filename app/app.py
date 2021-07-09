@@ -5,8 +5,22 @@ import dash_table as dt
 import plotly.express as px
 from dash.dependencies import Input, Output
 from dash.exceptions import PreventUpdate
-from .data_model.find_songs import FindSongData, FindSongEntries, FindSongRecommendations, getBestChoice
 
+from .data_model.find_songs import FindSongData, getBestChoice
+
+from requests import post
+FIND_SONGS_URL = 'http://localhost:8000/'
+FIND_MATCHING_SONGS = FIND_SONGS_URL+'matching_songs'
+GET_RECOMMENDED_SONGS = FIND_SONGS_URL+'recommended_songs'
+
+def find_matching_songs(hint):
+    ret = post(FIND_MATCHING_SONGS, params={'hint':hint})
+    return eval(ret.text,{'__builtins__': None})
+
+
+def get_recommended_songs(selected_song):
+    ret = post(GET_RECOMMENDED_SONGS,data=selected_song.to_json())
+    return eval(ret.text,{'__builtins__': None})
 
 REC_COLS = ['artist','song']
 FEATURES = ['name', 'artists']
@@ -16,8 +30,6 @@ get_song_info = lambda x:  ' '.join(x[FEATURES].to_list())
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
-findSongEntries = FindSongEntries()
-findSongRecommendations = FindSongRecommendations()
 findSongData = FindSongData()
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
@@ -83,7 +95,7 @@ app.layout = html.Div([
 def set_options(hint):
     if hint is None:
         raise PreventUpdate
-    entries = findSongEntries.find_matching_songs(hint)
+    entries = find_matching_songs(hint)
     df = findSongData.get_song_entries_data(entries, sorted=True)
     best_idx = getBestChoice(hint, df)
     dicosongs = [{'label': get_song_info(row), 'value': idx} for idx,row in df.iterrows()]
@@ -97,7 +109,7 @@ def predict(song):
     if song is None:
         raise PreventUpdate
     selected_song = findSongData.get_df_entry(song)
-    entries = findSongRecommendations.get_recommended_songs_json(selected_song.to_json())
+    entries = get_recommended_songs(selected_song)
     result = findSongData.get_song_entries_data(entries)
 
     return result[FEATURES].to_dict('records')
