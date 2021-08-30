@@ -69,4 +69,4 @@ async def get_recommmended_songs(song:SongEntry):
     return findSongRecommendations.get_recommended_songs_json(song.json())
 
 if __name__ == '__main__':
-    uvicorn.run(app, debug=True)
+    uvicorn.run(app, host='0.0.0.0',debug=True)
