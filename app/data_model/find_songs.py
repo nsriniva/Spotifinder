@@ -5,7 +5,7 @@ from re import compile as rcompile
 from zipfile import ZipFile
 from os.path import dirname
 import pandas as pd
-from tensorflow.keras.models import load_model
+#from tensorflow.keras.models import load_model
 from sklearn.neighbors import NearestNeighbors
 from joblib import load
 
