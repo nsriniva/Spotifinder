@@ -175,9 +175,9 @@ class FindSongData():
         self.tracks_df = pd.read_csv(TRACKS)
         
         # Get rid of superfluous columns and rows
-        self.tracks_df.drop(columns=['Unnamed: 0'], inplace=True)
-        self.tracks_df = self.tracks_df[self.tracks_df.genres.isna() == False]
-
+        #self.tracks_df.drop(columns=['Unnamed: 0'], inplace=True)
+        #self.tracks_df = self.tracks_df[self.tracks_df.genres.isna() == False]
+        
     def get_df_entry(self, idx):
         return self.tracks_df.loc[idx]
 
