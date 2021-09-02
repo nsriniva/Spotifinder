@@ -12,9 +12,9 @@ from requests import post
 from os import getenv
 
 if (FIND_SONGS_URL := getenv('FIND_SONGS_URL')) is None:
-    FIND_SONGS_URL = 'http://ec2-18-117-181-89.us-east-2.compute.amazonaws.com/'
-FIND_MATCHING_SONGS = FIND_SONGS_URL+'matching_songs'
-GET_RECOMMENDED_SONGS = FIND_SONGS_URL+'recommended_songs'
+    FIND_SONGS_URL = 'http://ec2-18-117-181-89.us-east-2.compute.amazonaws.com'
+FIND_MATCHING_SONGS = FIND_SONGS_URL+'/matching_songs'
+GET_RECOMMENDED_SONGS = FIND_SONGS_URL+'/recommended_songs'
 
 extract_id_list = lambda x: [int(y) for y in x[1:-2].split(',')]
 
@@ -47,39 +47,41 @@ app.layout = html.Div([
     html.Div([
         html.H2(children="Specifying Song Choice", style={'textAlign':'center'}),        
         html.Div([
-            html.Label("Song Name and/or Artist(s):", style={'fontSize':20, 'textAlign':'left'})
-        ],
-                 style={
-                    'width':'10%',
-                     'text-align':'left',
-                     'display':'inline-block'
-                 }
-        ),
-        html.Div([
-            dcc.Input(
-                id='Hint',
-                type = 'text',
-                placeholder = 'Song Name and/or Artist(s)',
-                debounce=True
-            )
-        ],
-                 style={
-                    'width':'10%',
-                     'text-align':'left',
-                     'display':'inline-block'
-                 }
-                 
-        ),
-        html.Div([
-            dcc.Dropdown(id='Songs',
-                         multi=False)
-        ],
-                 style={
-                     'width':'70%',
-                     'vertical-align':'middle',
-                     'display':'inline-block'
-                 }
-        ),
+            html.Label("Song Name and/or Artist(s):",  style={
+                'width':'20%',
+                'text-align':'left',
+                'display':'inline-block'
+            }
+            ),
+        dcc.Input(
+            id='Hint',
+            type = 'text',
+            placeholder = 'Song Name and/or Artist(s)',
+            debounce=True,
+            style={
+                'width':'30%',
+                'text-align':'left',
+                'display':'inline-block'
+            }
+        )           
+        ]),
+    ]),
+    html.Div([
+            html.Label("Chosen Song:",  style={
+                'width':'20%',
+                'text-align':'left',
+                'display':'inline-block'
+            }
+            ),
+        dcc.Dropdown(id='Songs',
+                     multi=False,
+                     style={
+                         'width':'70%',
+                         'vertical-align':'middle',
+                         'display':'inline-block'
+                     }
+        )
+        ,
     ]),
    html.Div([
         html.H2("Recommendations", style={'textAlign':'center'}),
