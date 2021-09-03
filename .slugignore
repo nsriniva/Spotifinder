@@ -1,4 +1,9 @@
 /notebooks
+/models
+docker_requirements.txt
+docker_run_command
+Dockerfile
+Spotifinder.pdf
 tracks_genres_lyrics_lang.csv.zipaa
 tracks_genres_lyrics_lang.csv.zipab
 artists.csv.zip
