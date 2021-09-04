@@ -13,5 +13,5 @@ COPY app/ /app
 COPY models/ /models
 # set the working directory in the container to be the /app
 # execute the command python main.py (in the WORKDIR) to start the app
-CMD ["python", "-m", "find_song_api.app"]
+CMD ["python", "-m", "app.find_song_api"]
 
