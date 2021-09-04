@@ -4,10 +4,19 @@ Contains the implementation of the FindSongs class.
 from re import compile as rcompile
 from zipfile import ZipFile
 from os.path import dirname
+from importlib import import_module
 import pandas as pd
-#from tensorflow.keras.models import load_model
-from sklearn.neighbors import NearestNeighbors
 from joblib import load
+
+load_model = None
+NearestNeighbors = None
+
+def import_from_sk_tf():
+    global load_model, NearestNeighbors
+
+    if load_model is None:
+        load_model = import_module('tensorflow.keras.models').load_model
+        NearestNeighbors = import_module('sklearn.neighbors').NearestNeighbors
 
 DIR = dirname(__file__)
 
@@ -76,6 +85,8 @@ class FindSongEntries():
 
     def __init__(self):
         super().__init__()
+
+        import_from_sk_tf()
         # Extract encoder.h5 from encoder.h5.zip
         with ZipFile(ENCODER_PATH, 'r') as zipObj:
             zipObj.extractall()
@@ -112,6 +123,9 @@ class FindSongRecommendations():
 
     def __init__(self):
         super().__init__()
+
+        import_from_sk_tf()
+
         # Numerical features associated with a song entry
         self.features = [
             'popularity', 'duration_ms', 'explicit', 'danceability',
@@ -183,6 +197,10 @@ class FindSongData():
         super().__init__()
         # Load tracks_df from zipped csv file tracks_genres_lyrics_en.csv.zip
         self.tracks_df = pd.read_csv(TRACKS)
+
+        # Get rid of superfluous columns and rows
+        self.tracks_df.drop(columns=['Unnamed: 0'], inplace=True)
+
         
     def get_df_entry(self, idx):
         return self.tracks_df.loc[idx]
@@ -256,6 +274,6 @@ class FindSongs(FindSongData, FindSongEntries, FindSongRecommendations):
         '''
         
         entries = self.get_recommended_songs(x)
-        
+
         return self.get_song_entries_data(entries)
  
