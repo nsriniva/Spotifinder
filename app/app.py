@@ -12,7 +12,7 @@ from requests import post
 from os import getenv
 
 if (FIND_SONGS_URL := getenv('FIND_SONGS_URL')) is None:
-    FIND_SONGS_URL = 'http://ec2-18-117-181-89.us-east-2.compute.amazonaws.com'
+    FIND_SONGS_URL = 'localhost:8000'
 FIND_MATCHING_SONGS = FIND_SONGS_URL+'/matching_songs'
 GET_RECOMMENDED_SONGS = FIND_SONGS_URL+'/recommended_songs'
 
